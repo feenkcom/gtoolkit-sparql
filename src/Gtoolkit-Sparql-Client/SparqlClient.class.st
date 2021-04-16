@@ -40,11 +40,12 @@ SparqlClient >> datasetUrl: anObject [
 
 { #category : #querying }
 SparqlClient >> evaluate: aString [
-	"Send the supplied sparql string to be evaluated by the remote server.
-	Since the sparql string may be any operation, no interpretation of the results is made."
+	"Send the supplied sparql string to be evaluated by the remote server"
 	| fieldName entity response contentType |
 
 	fieldName := self fieldNameFor: aString.
+	fieldName = #query ifTrue: [ ^ self read: aString ].
+
 	entity := ZnApplicationFormUrlEncodedEntity withAll: { 	fieldName -> aString } asDictionary.
 	response := ZnEasy post: datasetUrl data: entity.
 	contentType := response contentType.
