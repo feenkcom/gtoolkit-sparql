@@ -74,11 +74,45 @@ SparqlQueryResult >> getValueFromSource [
 		ifFalse: [ self getArrayValueFromSource ]
 ]
 
+{ #category : #'gt-extension' }
+SparqlQueryResult >> gtLiveFor: aView [
+	<gtView>
+	| selector |
+
+	source ifNil: [ ^ aView empty ].
+	selector := self isSingle
+		ifTrue: [ #gtValueFor: ]
+		ifFalse: [ #gtItemsFor: ].
+	^ aView forward 
+		title: 'Value';
+		priority: 10;
+		object: [ self value ];
+		view: selector.
+]
+
 { #category : #testing }
 SparqlQueryResult >> isSingle [ 
 	"Answer a boolean indicating whether the receiver's result is a single value"
 
 	^ isSingle ifNil: [ isSingle := self fieldNames size = 1 and: [ self bindings size = 1 ] ]
+]
+
+{ #category : #printing }
+SparqlQueryResult >> printOn: aStream [
+
+	super printOn: aStream.
+
+	source ifNil: [ ^ self ].
+
+	aStream << '('.
+	self isSingle ifTrue: 
+		[ aStream print: self value ]
+	ifFalse:
+		[ aStream
+			print: self value columnCount;
+			<< '@';
+			print: self value rowCount ].
+	aStream << ')'.
 ]
 
 { #category : #accessing }
